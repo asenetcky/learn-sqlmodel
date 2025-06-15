@@ -47,7 +47,10 @@ def select_heroes():
             # select(Hero).where(Hero.age >= 35).where(Hero.age < 40)
             # select(Hero).where(or_(Hero.age <= 35, Hero.age > 90))
             # select(Hero).where(col(Hero.age) >= 35)
-        ).all()
+            # ).all()
+            # ).first()  # just the first row or None
+        ).one()  # exactly one or throw error
+
         print(heroes)
 
 
