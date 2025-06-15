@@ -3,9 +3,9 @@ from sqlmodel import Field, Session, SQLModel, col, create_engine, select
 
 class Hero(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
-    name: str
+    name: str = Field(index=True)
     secret_name: str
-    age: int | None = None
+    age: int | None = Field(default=None, index=True)
 
 
 sqlite_file_name = "database.db"
@@ -42,10 +42,11 @@ def create_heroes():
 def select_heroes():
     with Session(engine) as session:
         heroes = session.exec(
+            select(Hero).where(col(Hero.name) == "Deadpond")
             # there combine with AND - can also be inside single where statement
             # select(Hero).where(Hero.age >= 35).where(Hero.age < 40)
             # select(Hero).where(or_(Hero.age <= 35, Hero.age > 90))
-            select(Hero).where(col(Hero.age) >= 35)
+            # select(Hero).where(col(Hero.age) >= 35)
         ).all()
         print(heroes)
 
