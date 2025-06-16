@@ -1,4 +1,4 @@
-from sqlmodel import Field, Session, SQLModel, col, create_engine, select
+from sqlmodel import Field, Session, SQLModel, create_engine, select
 
 
 class Hero(SQLModel, table=True):
@@ -39,25 +39,59 @@ def create_heroes():
         session.commit()
 
 
-def select_heroes():
+def update_heroes():
     with Session(engine) as session:
-        heroes = session.exec(
-            select(Hero).where(col(Hero.name) == "Deadpond")
-            # there combine with AND - can also be inside single where statement
-            # select(Hero).where(Hero.age >= 35).where(Hero.age < 40)
-            # select(Hero).where(or_(Hero.age <= 35, Hero.age > 90))
-            # select(Hero).where(col(Hero.age) >= 35)
-            # ).all()
-            # ).first()  # just the first row or None
-        ).one()  # exactly one or throw error
+        statement = select(Hero).where(Hero.name == "Spider-Boy")
+        results = session.exec(statement)
+        hero_1 = results.one()
+        print("Hero 1:", hero_1)
 
-        print(heroes)
+        statement = select(Hero).where(Hero.name == "Captain North America")
+        results = session.exec(statement)
+        hero_2 = results.one()
+        print("Hero 2:", hero_2)
+
+        hero_1.age = 16
+        hero_1.name = "Spider-Youngster"
+        session.add(hero_1)
+
+        hero_2.name = "Captain North America Except Canada"
+        hero_2.age = 110
+        session.add(hero_2)
+
+        session.commit()
+        session.refresh(hero_1)
+        session.refresh(hero_2)
+
+        print("Updated hero 1:", hero_1)
+        print("Updated hero 2:", hero_2)
+
+
+def delete_heroes():
+    with Session(engine) as session:
+        statement = select(Hero).where(Hero.name == "Spider-Youngster")
+        results = session.exec(statement)
+        hero = results.one()
+        print("Hero: ", hero)
+
+        session.delete(hero)
+        session.commit()
+
+        print("Deleted hero:", hero)
+
+        statement = select(Hero).where(Hero.name == "Spider-Youngster")
+        results = session.exec(statement)
+        hero = results.first()
+
+        if hero is None:
+            print("There's no hero named Spider-Youngster")
 
 
 def main():
     create_db_and_tables()
     create_heroes()
-    select_heroes()
+    update_heroes()
+    delete_heroes()
 
 
 if __name__ == "__main__":
